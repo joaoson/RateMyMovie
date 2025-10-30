@@ -67,6 +67,22 @@ class AuthService {
     }
   }
 
+  Future<bool> updateUserProfileImage(int userId, String? imagePath) async {
+    try {
+      final db = await DatabaseService.instance.database;
+      final result = await db.update(
+        'users',
+        {'profileImagePath': imagePath},
+        where: 'id = ?',
+        whereArgs: [userId],
+      );
+      return result > 0;
+    } catch (e) {
+      print('Error updating profile image: $e');
+      return false;
+    }
+  }
+
   Future<bool> deleteUser(int userId) async {
     try {
       final db = await DatabaseService.instance.database;

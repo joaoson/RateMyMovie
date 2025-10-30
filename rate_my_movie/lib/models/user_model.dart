@@ -32,4 +32,20 @@ class UserModel {
       profileImagePath: map['profileImagePath'],
     );
   }
+
+  UserModel copyWith({
+    int? id,
+    String? name,
+    String? email,
+    String? password,
+    String? profileImagePath,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      profileImagePath: profileImagePath ?? this.profileImagePath,
+    );
+  }
 }

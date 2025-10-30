@@ -54,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _checkAuthStatus() async {
-    // Aguarda um frame para garantir que o build está completo
     await Future.delayed(Duration.zero);
     
     if (!mounted) return;
@@ -65,7 +64,6 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (authController.isAuthenticated) {
-      // Navega para home - os filmes serão carregados no initState da HomeScreen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/database_service.dart';
@@ -63,17 +66,41 @@ class AuthController with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final success = await _authService.register(user);
-    
-    _isLoading = false;
+    try {
+      // If user selected a profile image, copy it to permanent storage
+      String? permanentImagePath;
+      if (user.profileImagePath != null) {
+        final appDir = await getApplicationDocumentsDirectory();
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final fileName = 'profile_temp_$timestamp${path.extension(user.profileImagePath!)}';
+        permanentImagePath = path.join(appDir.path, fileName);
+        
+        final File sourceFile = File(user.profileImagePath!);
+        if (await sourceFile.exists()) {
+          await sourceFile.copy(permanentImagePath);
+        } else {
+          permanentImagePath = null;
+        }
+      }
 
-    if (success) {
-      // Auto login after registration
-      await login(user.email, user.password);
-      return null; // Success
-    } else {
+      // Create user with permanent image path
+      final userToRegister = user.copyWith(profileImagePath: permanentImagePath);
+      final success = await _authService.register(userToRegister);
+      
+      _isLoading = false;
+
+      if (success) {
+        // Auto login after registration
+        await login(userToRegister.email, userToRegister.password);
+        return null; // Success
+      } else {
+        notifyListeners();
+        return 'Este email já está cadastrado';
+      }
+    } catch (e) {
+      _isLoading = false;
       notifyListeners();
-      return 'Este email já está cadastrado';
+      return 'Erro ao cadastrar: $e';
     }
   }
 
@@ -147,6 +174,77 @@ class AuthController with ChangeNotifier {
       }
     } catch (e) {
       return 'Erro ao atualizar senha: $e';
+    }
+  }
+
+  Future<String?> updateProfileImage(String imagePath) async {
+    if (_currentUser == null) {
+      return 'Usuário não autenticado';
+    }
+
+    try {
+      // Copy the image to permanent storage
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = 'profile_${_currentUser!.id}_${DateTime.now().millisecondsSinceEpoch}${path.extension(imagePath)}';
+      final permanentPath = path.join(appDir.path, fileName);
+      
+      // Copy the file
+      final File sourceFile = File(imagePath);
+      await sourceFile.copy(permanentPath);
+      
+      // Delete old profile image if it exists
+      if (_currentUser!.profileImagePath != null) {
+        try {
+          final oldFile = File(_currentUser!.profileImagePath!);
+          if (await oldFile.exists()) {
+            await oldFile.delete();
+          }
+        } catch (e) {
+          print('Error deleting old profile image: $e');
+        }
+      }
+      
+      final success = await _authService.updateUserProfileImage(_currentUser!.id!, permanentPath);
+      if (success) {
+        _currentUser = _currentUser!.copyWith(profileImagePath: permanentPath);
+        notifyListeners();
+        return null; // Success
+      } else {
+        return 'Erro ao atualizar foto de perfil';
+      }
+    } catch (e) {
+      return 'Erro ao atualizar foto de perfil: $e';
+    }
+  }
+
+  Future<String?> removeProfileImage() async {
+    if (_currentUser == null) {
+      return 'Usuário não autenticado';
+    }
+
+    try {
+      // Delete the profile image file
+      if (_currentUser!.profileImagePath != null) {
+        try {
+          final file = File(_currentUser!.profileImagePath!);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        } catch (e) {
+          print('Error deleting profile image file: $e');
+        }
+      }
+      
+      final success = await _authService.updateUserProfileImage(_currentUser!.id!, null);
+      if (success) {
+        _currentUser = _currentUser!.copyWith(profileImagePath: null);
+        notifyListeners();
+        return null; // Success
+      } else {
+        return 'Erro ao remover foto de perfil';
+      }
+    } catch (e) {
+      return 'Erro ao remover foto de perfil: $e';
     }
   }
 

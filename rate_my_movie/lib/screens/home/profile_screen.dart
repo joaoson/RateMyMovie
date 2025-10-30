@@ -1,12 +1,83 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/rated_movies_controller.dart';
 import '../auth/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  Future<void> _pickProfileImage(BuildContext context, AuthController authController) async {
+    final ImagePicker picker = ImagePicker();
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera),
+              title: const Text('Tirar Foto'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.camera,
+                  maxWidth: 512,
+                  maxHeight: 512,
+                  imageQuality: 85,
+                );
+                if (image != null) {
+                  final error = await authController.updateProfileImage(image.path);
+                  if (context.mounted && error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(error), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Escolher da Galeria'),
+              onTap: () async {
+                Navigator.pop(context);
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.gallery,
+                  maxWidth: 512,
+                  maxHeight: 512,
+                  imageQuality: 85,
+                );
+                if (image != null) {
+                  final error = await authController.updateProfileImage(image.path);
+                  if (context.mounted && error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(error), backgroundColor: Colors.red),
+                    );
+                  }
+                }
+              },
+            ),
+            if (authController.currentUser?.profileImagePath != null)
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Remover Foto', style: TextStyle(color: Colors.red)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final error = await authController.removeProfileImage();
+                  if (context.mounted && error != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(error), backgroundColor: Colors.red),
+                    );
+                  }
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _showUpdateEmailDialog(BuildContext context, AuthController authController) {
     final emailController = TextEditingController(text: authController.currentUser?.email);
@@ -228,22 +299,46 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey.shade200,
-                          image: user.profileImagePath != null
-                              ? DecorationImage(
-                                  image: FileImage(File(user.profileImagePath!)),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
+                      GestureDetector(
+                        onTap: () => _pickProfileImage(context, authController),
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey.shade200,
+                                image: user.profileImagePath != null
+                                    ? DecorationImage(
+                                        image: FileImage(File(user.profileImagePath!)),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                              ),
+                              child: user.profileImagePath == null
+                                  ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                                  : null,
+                            ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  size: 20,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        child: user.profileImagePath == null
-                            ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                            : null,
                       ),
                       const SizedBox(height: 16),
                       Text(
