@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import '../models/movie_model.dart';
 
 class TMDBService {
-  // IMPORTANTE: Substitua pela sua API Key do TMDb
   static const String _apiKey = 'a0eda993e3361e6cb38eac4b37055c9d';
   static const String _baseUrl = 'https://api.themoviedb.org/3';
 

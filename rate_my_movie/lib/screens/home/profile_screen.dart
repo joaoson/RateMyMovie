@@ -17,61 +17,73 @@ class ProfileScreen extends StatelessWidget {
       builder: (context) => SafeArea(
         child: Wrap(
           children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera),
-              title: const Text('Tirar Foto'),
-              onTap: () async {
-                Navigator.pop(context);
-                final XFile? image = await picker.pickImage(
-                  source: ImageSource.camera,
-                  maxWidth: 512,
-                  maxHeight: 512,
-                  imageQuality: 85,
-                );
-                if (image != null) {
-                  final error = await authController.updateProfileImage(image.path);
-                  if (context.mounted && error != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(error), backgroundColor: Colors.red),
-                    );
-                  }
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Escolher da Galeria'),
-              onTap: () async {
-                Navigator.pop(context);
-                final XFile? image = await picker.pickImage(
-                  source: ImageSource.gallery,
-                  maxWidth: 512,
-                  maxHeight: 512,
-                  imageQuality: 85,
-                );
-                if (image != null) {
-                  final error = await authController.updateProfileImage(image.path);
-                  if (context.mounted && error != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(error), backgroundColor: Colors.red),
-                    );
-                  }
-                }
-              },
-            ),
-            if (authController.currentUser?.profileImagePath != null)
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Remover Foto', style: TextStyle(color: Colors.red)),
+            Semantics(
+              label: 'Tirar foto com a câmera',
+              button: true,
+              child: ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Tirar Foto'),
                 onTap: () async {
                   Navigator.pop(context);
-                  final error = await authController.removeProfileImage();
-                  if (context.mounted && error != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(error), backgroundColor: Colors.red),
-                    );
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 512,
+                    maxHeight: 512,
+                    imageQuality: 85,
+                  );
+                  if (image != null) {
+                    final error = await authController.updateProfileImage(image.path);
+                    if (context.mounted && error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error), backgroundColor: Colors.red),
+                      );
+                    }
                   }
                 },
+              ),
+            ),
+            Semantics(
+              label: 'Escolher foto da galeria',
+              button: true,
+              child: ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Escolher da Galeria'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                    maxWidth: 512,
+                    maxHeight: 512,
+                    imageQuality: 85,
+                  );
+                  if (image != null) {
+                    final error = await authController.updateProfileImage(image.path);
+                    if (context.mounted && error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error), backgroundColor: Colors.red),
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+            if (authController.currentUser?.profileImagePath != null)
+              Semantics(
+                label: 'Remover foto de perfil',
+                button: true,
+                child: ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text('Remover Foto', style: TextStyle(color: Colors.red)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final error = await authController.removeProfileImage();
+                    if (context.mounted && error != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(error), backgroundColor: Colors.red),
+                      );
+                    }
+                  },
+                ),
               ),
           ],
         ),
@@ -90,49 +102,63 @@ class ProfileScreen extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Novo Email',
-                border: OutlineInputBorder(),
+            Semantics(
+              label: 'Campo de novo email',
+              child: TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Novo Email',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
               ),
-              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Senha Atual',
-                border: OutlineInputBorder(),
+            Semantics(
+              label: 'Campo de senha atual para confirmação',
+              child: TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Senha Atual',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+          Semantics(
+            label: 'Cancelar atualização de email',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
           ),
-          TextButton(
-            onPressed: () async {
-              final error = await authController.updateEmail(
-                emailController.text,
-                passwordController.text,
-              );
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              if (error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(error), backgroundColor: Colors.red),
+          Semantics(
+            label: 'Confirmar atualização de email',
+            button: true,
+            child: TextButton(
+              onPressed: () async {
+                final error = await authController.updateEmail(
+                  emailController.text,
+                  passwordController.text,
                 );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Email atualizado com sucesso!')),
-                );
-              }
-            },
-            child: const Text('Atualizar'),
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                if (error != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Email atualizado com sucesso!')),
+                  );
+                }
+              },
+              child: const Text('Atualizar'),
+            ),
           ),
         ],
       ),
@@ -151,67 +177,84 @@ class ProfileScreen extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: currentPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Senha Atual',
-                border: OutlineInputBorder(),
+            Semantics(
+              label: 'Campo de senha atual',
+              child: TextField(
+                controller: currentPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Senha Atual',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: newPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Nova Senha',
-                border: OutlineInputBorder(),
+            Semantics(
+              label: 'Campo de nova senha',
+              child: TextField(
+                controller: newPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Nova Senha',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: confirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirmar Nova Senha',
-                border: OutlineInputBorder(),
+            Semantics(
+              label: 'Campo para confirmar nova senha',
+              child: TextField(
+                controller: confirmPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Confirmar Nova Senha',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+          Semantics(
+            label: 'Cancelar atualização de senha',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
           ),
-          TextButton(
-            onPressed: () async {
-              if (newPasswordController.text != confirmPasswordController.text) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('As senhas não coincidem'),
-                    backgroundColor: Colors.red,
-                  ),
+          Semantics(
+            label: 'Confirmar atualização de senha',
+            button: true,
+            child: TextButton(
+              onPressed: () async {
+                if (newPasswordController.text != confirmPasswordController.text) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('As senhas não coincidem'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                final error = await authController.updatePassword(
+                  currentPasswordController.text,
+                  newPasswordController.text,
                 );
-                return;
-              }
-              final error = await authController.updatePassword(
-                currentPasswordController.text,
-                newPasswordController.text,
-              );
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              if (error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(error), backgroundColor: Colors.red),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Senha atualizada com sucesso!')),
-                );
-              }
-            },
-            child: const Text('Atualizar'),
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                if (error != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Senha atualizada com sucesso!')),
+                  );
+                }
+              },
+              child: const Text('Atualizar'),
+            ),
           ),
         ],
       ),
@@ -233,38 +276,49 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(color: Colors.red),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirme sua senha',
-                border: OutlineInputBorder(),
+            Semantics(
+              label: 'Campo de senha para confirmar exclusão da conta',
+              child: TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Confirme sua senha',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+          Semantics(
+            label: 'Cancelar exclusão de conta',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
           ),
-          TextButton(
-            onPressed: () async {
-              final error = await authController.deleteAccount(passwordController.text);
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              if (error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(error), backgroundColor: Colors.red),
-                );
-              } else {
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false,
-                );
-              }
-            },
-            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+          Semantics(
+            label: 'Confirmar exclusão de conta',
+            button: true,
+            child: TextButton(
+              onPressed: () async {
+                final error = await authController.deleteAccount(passwordController.text);
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                if (error != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(error), backgroundColor: Colors.red),
+                  );
+                } else {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
+                }
+              },
+              child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+            ),
           ),
         ],
       ),
@@ -299,45 +353,50 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      GestureDetector(
-                        onTap: () => _pickProfileImage(context, authController),
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 120,
-                              height: 120,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.grey.shade200,
-                                image: user.profileImagePath != null
-                                    ? DecorationImage(
-                                        image: FileImage(File(user.profileImagePath!)),
-                                        fit: BoxFit.cover,
-                                      )
+                      Semantics(
+                        label: 'Foto de perfil. Toque para alterar',
+                        button: true,
+                        image: true,
+                        child: GestureDetector(
+                          onTap: () => _pickProfileImage(context, authController),
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade200,
+                                  image: user.profileImagePath != null
+                                      ? DecorationImage(
+                                          image: FileImage(File(user.profileImagePath!)),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                ),
+                                child: user.profileImagePath == null
+                                    ? const Icon(Icons.person, size: 60, color: Colors.grey)
                                     : null,
                               ),
-                              child: user.profileImagePath == null
-                                  ? const Icon(Icons.person, size: 60, color: Colors.grey)
-                                  : null,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  size: 20,
-                                  color: Colors.white,
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                  ),
+                                  child: const Icon(
+                                    Icons.camera_alt,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -402,72 +461,96 @@ class ProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     children: [
-                      ListTile(
-                        leading: const Icon(Icons.email, color: Colors.blue),
-                        title: const Text('Atualizar Email'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _showUpdateEmailDialog(context, authController),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.lock, color: Colors.blue),
-                        title: const Text('Atualizar Senha'),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => _showUpdatePasswordDialog(context, authController),
-                      ),
-                      const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.logout, color: Colors.orange),
-                        title: const Text(
-                          'Sair',
-                          style: TextStyle(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      Semantics(
+                        label: 'Atualizar email',
+                        button: true,
+                        child: ListTile(
+                          leading: const Icon(Icons.email, color: Colors.blue),
+                          title: const Text('Atualizar Email'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _showUpdateEmailDialog(context, authController),
                         ),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Sair'),
-                              content: const Text('Tem certeza que deseja sair?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancelar'),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    await authController.logout();
-                                    if (!context.mounted) return;
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                        builder: (context) => const LoginScreen(),
-                                      ),
-                                      (route) => false,
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Sair',
-                                    style: TextStyle(color: Colors.orange),
-                                  ),
-                                ),
-                              ],
+                      ),
+                      const Divider(height: 1),
+                      Semantics(
+                        label: 'Atualizar senha',
+                        button: true,
+                        child: ListTile(
+                          leading: const Icon(Icons.lock, color: Colors.blue),
+                          title: const Text('Atualizar Senha'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => _showUpdatePasswordDialog(context, authController),
+                        ),
+                      ),
+                      const Divider(height: 1),
+                      Semantics(
+                        label: 'Sair da conta',
+                        button: true,
+                        child: ListTile(
+                          leading: const Icon(Icons.logout, color: Colors.orange),
+                          title: const Text(
+                            'Sair',
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.w500,
                             ),
-                          );
-                        },
+                          ),
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Sair'),
+                                content: const Text('Tem certeza que deseja sair?'),
+                                actions: [
+                                  Semantics(
+                                    label: 'Cancelar saída',
+                                    button: true,
+                                    child: TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text('Cancelar'),
+                                    ),
+                                  ),
+                                  Semantics(
+                                    label: 'Confirmar saída',
+                                    button: true,
+                                    child: TextButton(
+                                      onPressed: () async {
+                                        await authController.logout();
+                                        if (!context.mounted) return;
+                                        Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(
+                                            builder: (context) => const LoginScreen(),
+                                          ),
+                                          (route) => false,
+                                        );
+                                      },
+                                      child: const Text(
+                                        'Sair',
+                                        style: TextStyle(color: Colors.orange),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
                       const Divider(height: 1),
-                      ListTile(
-                        leading: const Icon(Icons.delete_forever, color: Colors.red),
-                        title: const Text(
-                          'Excluir Conta',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
+                      Semantics(
+                        label: 'Excluir conta permanentemente',
+                        button: true,
+                        child: ListTile(
+                          leading: const Icon(Icons.delete_forever, color: Colors.red),
+                          title: const Text(
+                            'Excluir Conta',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
+                          onTap: () => _showDeleteAccountDialog(context, authController),
                         ),
-                        onTap: () => _showDeleteAccountDialog(context, authController),
                       ),
                     ],
                   ),

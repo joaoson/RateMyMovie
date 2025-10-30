@@ -120,17 +120,38 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           SliverAppBar(
             expandedHeight: 300,
             pinned: true,
+            leading: Semantics(
+              label: 'Voltar',
+              button: true,
+              child: Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                widget.movie.title,
-                style: const TextStyle(
-                  shadows: [
-                    Shadow(
-                      offset: Offset(0, 1),
-                      blurRadius: 3.0,
-                      color: Colors.black87,
-                    ),
-                  ],
+              titlePadding: const EdgeInsets.only(left: 16, bottom: 16, right: 16),
+              title: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  widget.movie.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               background: widget.movie.backdropPath != null
@@ -147,7 +168,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.transparent,
+                                Colors.black.withOpacity(0.3),
                                 Colors.black.withOpacity(0.7),
                               ],
                             ),
@@ -174,13 +195,17 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   Row(
                     children: [
                       if (widget.movie.posterPath != null)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: CachedNetworkImage(
-                            imageUrl: widget.movie.fullPosterUrl,
-                            width: 120,
-                            height: 180,
-                            fit: BoxFit.cover,
+                        Semantics(
+                          label: 'Pôster do filme ${widget.movie.title}',
+                          image: true,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: CachedNetworkImage(
+                              imageUrl: widget.movie.fullPosterUrl,
+                              width: 120,
+                              height: 180,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       const SizedBox(width: 16),
@@ -189,38 +214,44 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (widget.movie.releaseDate.isNotEmpty)
-                              Text(
-                                widget.movie.releaseDate.split('-')[0],
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade700,
+                              Semantics(
+                                label: 'Ano de lançamento: ${widget.movie.releaseDate.split('-')[0]}',
+                                child: Text(
+                                  widget.movie.releaseDate.split('-')[0],
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey.shade700,
+                                  ),
                                 ),
                               ),
                             const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  widget.movie.voteAverage.toStringAsFixed(1),
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                            Semantics(
+                              label: 'Nota média: ${widget.movie.voteAverage.toStringAsFixed(1)} de 10',
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                    size: 24,
                                   ),
-                                ),
-                                Text(
-                                  '/10',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey.shade600,
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    widget.movie.voteAverage.toStringAsFixed(1),
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    '/10',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -257,65 +288,76 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Center(
-                    child: RatingBar.builder(
-                      initialRating: _userRating,
-                      minRating: 0.5,
-                      direction: Axis.horizontal,
-                      allowHalfRating: true,
-                      itemCount: 5,
-                      itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      itemBuilder: (context, _) => const Icon(
-                        Icons.star,
-                        color: Colors.amber,
+                  Semantics(
+                    label: 'Avaliar filme. Nota atual: ${_userRating == 0 ? "nenhuma" : "${_userRating.toStringAsFixed(1)} estrelas"}',
+                    child: Center(
+                      child: RatingBar.builder(
+                        initialRating: _userRating,
+                        minRating: 0.5,
+                        direction: Axis.horizontal,
+                        allowHalfRating: true,
+                        itemCount: 5,
+                        itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                        itemBuilder: (context, _) => const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                        ),
+                        onRatingUpdate: (rating) {
+                          setState(() {
+                            _userRating = rating;
+                          });
+                        },
                       ),
-                      onRatingUpdate: (rating) {
-                        setState(() {
-                          _userRating = rating;
-                        });
-                      },
                     ),
                   ),
                   const SizedBox(height: 24),
-                  TextField(
-                    controller: _reviewController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      labelText: 'Sua Resenha (opcional)',
-                      hintText: 'O que você achou do filme?',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveRating,
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
+                  Semantics(
+                    label: 'Campo de texto para escrever sua resenha do filme',
+                    textField: true,
+                    child: TextField(
+                      controller: _reviewController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        labelText: 'Sua Resenha (opcional)',
+                        hintText: 'O que você achou do filme?',
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        alignLabelWithHint: true,
                       ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Semantics(
+                    label: 'Salvar avaliação',
+                    button: true,
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _isSaving ? null : _saveRating,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isSaving
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Text(
+                                'Salvar Avaliação',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            )
-                          : const Text(
-                              'Salvar Avaliação',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

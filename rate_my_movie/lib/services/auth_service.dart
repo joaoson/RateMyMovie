@@ -86,9 +86,7 @@ class AuthService {
   Future<bool> deleteUser(int userId) async {
     try {
       final db = await DatabaseService.instance.database;
-      // Delete all rated movies first (cascade should handle this, but being explicit)
       await db.delete('rated_movies', where: 'userId = ?', whereArgs: [userId]);
-      // Delete user
       final result = await db.delete('users', where: 'id = ?', whereArgs: [userId]);
       return result > 0;
     } catch (e) {
