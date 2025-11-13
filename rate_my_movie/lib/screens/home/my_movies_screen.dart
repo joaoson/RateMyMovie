@@ -12,6 +12,7 @@ class MyMoviesScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Meus Filmes Assistidos'),
         elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Consumer<RatedMoviesController>(
         builder: (context, ratedMoviesController, child) {

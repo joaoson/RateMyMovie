@@ -39,13 +39,14 @@ class UserModel {
     String? email,
     String? password,
     String? profileImagePath,
+    bool clearProfileImagePath = false,
   }) {
     return UserModel(
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       password: password ?? this.password,
-      profileImagePath: profileImagePath ?? this.profileImagePath,
+      profileImagePath: clearProfileImagePath ? null : (profileImagePath ?? this.profileImagePath),
     );
   }
 }

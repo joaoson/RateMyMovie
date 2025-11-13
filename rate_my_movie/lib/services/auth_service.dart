@@ -9,7 +9,7 @@ class AuthService {
     try {
       final existingUser = await DatabaseService.instance.getUserByEmail(user.email);
       if (existingUser != null) {
-        return false; // User already exists
+        return false; 
       }
 
       await DatabaseService.instance.createUser(user);
@@ -70,12 +70,23 @@ class AuthService {
   Future<bool> updateUserProfileImage(int userId, String? imagePath) async {
     try {
       final db = await DatabaseService.instance.database;
-      final result = await db.update(
-        'users',
-        {'profileImagePath': imagePath},
-        where: 'id = ?',
-        whereArgs: [userId],
-      );
+      int result;
+      
+      if (imagePath == null) {
+        // Use raw SQL to properly set NULL value
+        result = await db.rawUpdate(
+          'UPDATE users SET profileImagePath = ? WHERE id = ?',
+          [null, userId],
+        );
+      } else {
+        result = await db.update(
+          'users',
+          {'profileImagePath': imagePath},
+          where: 'id = ?',
+          whereArgs: [userId],
+        );
+      }
+      
       return result > 0;
     } catch (e) {
       print('Error updating profile image: $e');

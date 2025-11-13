@@ -1,5 +1,7 @@
 # Rate My Movie - Catálogo Pessoal de Filmes
 
+# [Video de Demonstração](https://youtu.be/Ux1nDswYow0)
+
 Aplicativo Flutter desenvolvido como Projeto Final Integrado (PjBL) que permite aos usuários buscar filmes, visualizar detalhes e manter uma lista pessoal de filmes assistidos com suas próprias avaliações.
 
 ## 📋 Índice

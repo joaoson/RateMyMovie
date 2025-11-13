@@ -23,7 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadRatedMovies() async {
-    // Aguarda um frame para garantir que o build está completo
     await Future.delayed(Duration.zero);
     
     if (!mounted) return;

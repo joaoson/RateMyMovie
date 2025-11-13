@@ -237,7 +237,7 @@ class AuthController with ChangeNotifier {
       
       final success = await _authService.updateUserProfileImage(_currentUser!.id!, null);
       if (success) {
-        _currentUser = _currentUser!.copyWith(profileImagePath: null);
+        _currentUser = _currentUser!.copyWith(clearProfileImagePath: true);
         notifyListeners();
         return null; // Success
       } else {

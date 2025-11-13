@@ -75,12 +75,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     final ratedMoviesController = Provider.of<RatedMoviesController>(context, listen: false);
 
     final ratedMovie = RatedMovieModel(
-      userId: authController.currentUser!.id!,
-      movieId: widget.movie.id,
-      movieTitle: widget.movie.title,
-      moviePosterPath: widget.movie.posterPath,
-      userRating: _userRating,
-      userReview: _reviewController.text.trim().isEmpty 
+        userId: authController.currentUser!.id!,
+        movieId: widget.movie.id,
+        movieTitle: widget.movie.title,
+        moviePosterPath: widget.movie.posterPath,
+        userRating: _userRating,
+        userReview: _reviewController.text.trim().isEmpty 
           ? null 
           : _reviewController.text.trim(),
       ratedAt: DateTime.now(),

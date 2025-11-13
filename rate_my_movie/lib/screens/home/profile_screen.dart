@@ -77,9 +77,14 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () async {
                     Navigator.pop(context);
                     final error = await authController.removeProfileImage();
-                    if (context.mounted && error != null) {
+                    if (!context.mounted) return;
+                    if (error != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(error), backgroundColor: Colors.red),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Foto removida com sucesso!')),
                       );
                     }
                   },
@@ -331,6 +336,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Perfil'),
         elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Consumer<AuthController>(
         builder: (context, authController, child) {
