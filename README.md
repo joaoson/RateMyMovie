@@ -2,6 +2,8 @@
 
 > Um aplicativo multiplataforma para gerenciar seu catálogo pessoal de filmes, com avaliações e sincronização.
 
+# [Video de Demonstração](https://www.youtube.com/watch?v=Ux1nDswYow0)
+
 ## 📋 Visão Geral
 
 RateMyMovie é um projeto acadêmico (PjBL) que demonstra desenvolvimento de aplicação mobile/web completa com:
@@ -253,4 +255,3 @@ dependencies:
 - ✨ **Offline-first**: Funciona completamente sem internet
 - ✨ **UI/UX**: Material Design 3 com componentes customizados
 - ✨ **Code Quality**: Padrões Flutter e Dart recomendados
-
